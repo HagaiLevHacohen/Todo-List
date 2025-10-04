@@ -2,6 +2,8 @@ import { Priority } from './Priority.js';
 import { format, isToday, isThisWeek } from 'date-fns';
 import { Project } from './Project.js';
 import { Todo } from './Todo.js';
+import { loadFromLocalStorage, saveToLocalStorage } from './storage.js';
+
 
 class Renderer {
     #projectManager;
@@ -52,6 +54,9 @@ class Renderer {
         const ProjectCancelBtn = document.querySelector("#cancel-project-button");
         ProjectCancelBtn.addEventListener('click', () => this.handleCancelDialog(false));
 
+        loadFromLocalStorage();
+        this.renderAllTasks();
+        this.renderProjectList();
 
     }
 
@@ -100,6 +105,8 @@ class Renderer {
 
             const newProject = new Project(title);
             this.#projectManager.addItem(newProject);
+
+            saveToLocalStorage();
 
             // Clear form for next use
             form.reset();
@@ -163,6 +170,7 @@ class Renderer {
                 project.addItem(newTodo);
 
             }
+            saveToLocalStorage();
         }
         // Clear form for next use
         form.reset();
@@ -282,6 +290,7 @@ class Renderer {
         this.#projectManager.deleteById(projectId);
         this.renderProjectList(); // re-render list
         this.renderAllTasks();
+        saveToLocalStorage();
     }
 
     handleProjectClick(projectId) {
@@ -311,6 +320,7 @@ class Renderer {
         // Checkbox
         const checkboxElem = document.createElement('input');
         checkboxElem.setAttribute('type', 'checkbox');
+        checkboxElem.addEventListener('click', (e) => e.stopPropagation()); // 🔥 Stop the click from bubbling
         checkboxElem.addEventListener('change', (e) => this.handleCheckbox(e, todo));
         if (todo.completed) {
             checkboxElem.checked = true;
@@ -406,6 +416,7 @@ class Renderer {
         const project = this.#projectManager.getById(projectId);
         project.deleteById(todoId);
         this.renderAllTasks();
+        saveToLocalStorage();
     }
 
     handleEditTask(event, projectId, todoId) {
@@ -491,6 +502,8 @@ class Renderer {
             descriptionElem.classList.remove('completed');
             todo.completed = false;
         }
+
+        saveToLocalStorage();
     }
 }
 

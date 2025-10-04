@@ -13,14 +13,18 @@ class Todo {
     constructor(title, description, dueDate, priority, projectId) {
         this.#title = title;
         this.#description = description;
-        this.#dueDate = dueDate;
+        this.#dueDate = new Date(dueDate);
         this.#priority = priority;
         this.#projectId = projectId;
     }
 
-    // Getter for id
+    // Getter and Setter for id
     get id() {
         return this.#id;
+    }
+
+    set id(value) {
+        this.#id = value;
     }
 
     // Getter and Setter for title
@@ -82,6 +86,31 @@ class Todo {
 
     set projectId(value) {
         this.#projectId = value;
+    }
+
+    toJSON() {
+        return {
+                id: this.id,
+                title: this.title,
+                description: this.description,
+                dueDate: this.dueDate.toISOString(), // Serialize as ISO string
+                priority: this.priority,
+                completed: this.completed,
+                projectId: this.projectId
+            };
+    }
+
+    static fromJSON(obj) {
+        const todo = new Todo(
+            obj.title,
+            obj.description,
+            new Date(obj.dueDate),
+            obj.priority,
+            obj.projectId
+        );
+        todo.completed = obj.completed;
+        todo.id = obj.id;
+        return todo;
     }
 }
 
